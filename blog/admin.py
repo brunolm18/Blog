@@ -18,10 +18,10 @@ class AutorAdmin(admin.ModelAdmin):
 
 class CategoriaAdmin(admin.ModelAdmin):
     search_fields = ("category",)
+    list_per_page = 10
 
 
 admin.site.register(Autor,AutorAdmin)
 admin.site.register(Categoria,CategoriaAdmin)
 admin.site.register(Post,PostAdmin)
-
-
+    

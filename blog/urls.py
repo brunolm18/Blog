@@ -1,9 +1,15 @@
-from django.urls import path
+from django.urls import path,include
 from blog.views import *
+from rest_framework import routers
+
+router = routers.DefaultRouter()
+router.register(r'users',UserViewSet)
 
 urlpatterns = [
     #Posts urls
-    path("",api_root,name="api_root"),
+    path("",include(router.urls)),
+    path("api/auth",include("rest_framework.urls",namespace='rest_framework')),
+    
     path("posts",PostList.as_view(),name="posts"),
     path("posts/<int:pk>",PostDetail.as_view(),name="postsdetail"),
     path("posts_create",PostCreate.as_view(),name="posts_create"),

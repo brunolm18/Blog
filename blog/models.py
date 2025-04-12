@@ -1,3 +1,5 @@
+
+
 from django.db import models
 
 
@@ -10,10 +12,14 @@ class Autor(models.Model):
     def __str__(self) -> str:
         return self.email
     
+    
+    
     class Meta:
         verbose_name = "Autor"
         verbose_name_plural = "Autores"
         db_table = "Autores"
+
+    
 
 #Categoria
 class Categoria(models.Model): 
@@ -28,12 +34,15 @@ class Categoria(models.Model):
     def __str__(self):
         return self.category
 
+    
+
 #Posts
 class Post(models.Model):
     category = models.ForeignKey(Categoria,on_delete=models.CASCADE)
     autor = models.ForeignKey(Autor,on_delete=models.CASCADE)
-    title = models.CharField(max_length=100,verbose_name="Title")
-    image = models.ImageField(upload_to="blog_images",verbose_name="Image",blank=True)
+    title = models.CharField(verbose_name="Title")
+    description = models.TextField(default="Hola")
+    image = models.ImageField(upload_to="blog_images",verbose_name="Image",blank=True,null=True)
     text = models.TextField()
     date = models.DateTimeField(auto_now_add=True)
 
