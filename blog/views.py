@@ -99,6 +99,13 @@ class AutorList(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
     pagination_class = PaginatorModels
 
+
+    def http_method_not_allowed(self, request, *args, **kwargs):
+        return Response(content_type=f"Metodo {request.method } no permitido",status=405)
+    
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
 class AutorDetail(generics.RetrieveAPIView):
     queryset = Autor.objects.all()
     serializer_class = AutorSerializer
