@@ -1,167 +1,75 @@
-
-from rest_framework import generics
-from blog.models import Autor,Categoria,Post
-from rest_framework import status
-from blog.serializers import AutorSerializer,CategoriaSerializer,PostSerializer,UserSerializer
-from rest_framework import permissions
+from rest_framework import generics, viewsets, permissions
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.authentication import SessionAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
-from rest_framework.response import Response
-from django.contrib.auth.models import User
-from rest_framework import viewsets
+from drf_spectacular.utils import extend_schema
+from blog.models import Author, AuthorProfile, Category, Post, Tag
+from blog.serializers import AuthorSerializer, CategorySerializer, PostSerializer, TagSerializer
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 
-
-
-#Paginacion global para modelos
-class PaginatorModels(PageNumberPagination):
+class Pagination(PageNumberPagination):
     page_size = 10
+    page_query_param = 'page'
+    page_size_query_param = "page_size"
+    max_page_size = 20
+    invalid_page_message = "Invalid page. Go through a valid page."
 
 
-class UserViewSet(viewsets.ModelViewSet):
+@extend_schema(summary="CRUD for Authors", tags=["Authors"])
+class AuthorViewSet(viewsets.ModelViewSet):
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
+    authentication_classes = [JWTAuthentication, SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['username', 'email']
 
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
-    
-    
-
-
-
-class PostList(generics.ListAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer 
-    permission_classes = [permissions.AllowAny]
-    pagination_class = PaginatorModels
-    
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['category', 'autor']  # Filtrar por estos campos exactos
-    search_fields = ['title', 'description', 'text']  # Buscar por texto en estos campos
-    ordering_fields = ['date', 'title']
-     
-
-    
-    
-    
-
-    def http_method_not_allowed(self, request,*args,**kwargs):
-        return Response(data={"error":f'Metodo {request.method} no permitido'},status=status.HTTP_405_METHOD_NOT_ALLOWED,)
-    
-    def list(self, request,*args,**kwargs):
-       queryset = self.get_queryset()
-       serializer = self.get_serializer(queryset,many=True)
-       return Response({
-           "total":queryset.count(),
-           "posts":serializer.data
-       })
-
-    
-
-
-
-    
-    
-    
-
-    
-
-class PostDetail(generics.RetrieveAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    permission_classes = [permissions.AllowAny]
-
-
-
-
-class PostCreate(generics.CreateAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    
-
-class PostUpdate(generics.UpdateAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    
-
-class PostDelete(generics.DestroyAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticated]
-   
-    
-
-class AutorList(generics.ListAPIView):
-    queryset = Autor.objects.all()
-    serializer_class = AutorSerializer
-    permission_classes = [permissions.AllowAny]
-    pagination_class = PaginatorModels
-
-
-    def http_method_not_allowed(self, request, *args, **kwargs):
-        return Response(content_type=f"Metodo {request.method } no permitido",status=405)
-    
+    @method_decorator(cache_page(60 * 5))
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-class AutorDetail(generics.RetrieveAPIView):
-    queryset = Autor.objects.all()
-    serializer_class = AutorSerializer
-    permission_classes = [permissions.AllowAny]
-    
 
-class AutorCreate(generics.CreateAPIView):
-    queryset = Autor.objects.all()
-    serializer_class = AutorSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    pagination_class = PaginatorModels
+@extend_schema(summary="CRUD for Categories", tags=["Categories"])
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    authentication_classes = [JWTAuthentication, SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['name']
 
-class AutorUpdate(generics.UpdateAPIView):
-    queryset = Autor.objects.all()
-    serializer_class = AutorSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    
+    @method_decorator(cache_page(60 * 5))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
-class AutorDelete(generics.DestroyAPIView):
-    queryset = Autor.objects.all()
-    serializer_class = AutorSerializer
-    permission_classes = [permissions.IsAuthenticated]
- 
+@extend_schema(summary="CRUD for Tags", tags=["Tags"])
+class TagViewSet(viewsets.ModelViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    authentication_classes = [JWTAuthentication, SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['name']
 
-class CategoriaList(generics.ListAPIView):
-    queryset = Categoria.objects.all()
-    serializer_class = CategoriaSerializer
-    permission_classes = [permissions.AllowAny]
-    pagination_class = PaginatorModels
-
-
-class CategoriaDetail(generics.RetrieveAPIView):
-    queryset = Categoria.objects.all()
-    serializer_class = CategoriaSerializer
-    permission_classes = [permissions.AllowAny]
-    pagination_class = PageNumberPagination
-
-class CategoriaCreate(generics.CreateAPIView):
-    queryset = Categoria.objects.all()
-    serializer_class = CategoriaSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    pagination_class = PageNumberPagination
-    
-
-class CategoriaUpdate(generics.UpdateAPIView):
-    queryset = Categoria.objects.all()
-    serializer_class = CategoriaSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    pagination_class = PageNumberPagination
-    
+    @method_decorator(cache_page(60 * 5))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
-class CategoriaDelete(generics.DestroyAPIView):
-    queryset = Categoria.objects.all()
-    serializer_class = CategoriaSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    pagination_class = PageNumberPagination
-    
+@extend_schema(summary="CRUD for Posts", tags=["Posts"])
+class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all().select_related('author', 'category').prefetch_related('tags').order_by('-pub_date')
+    serializer_class = PostSerializer
+    pagination_class = Pagination
+    authentication_classes = [JWTAuthentication, SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['title', 'category__name', 'author__username', 'status']
+
+
+    @method_decorator(cache_page(60*5))  # cac
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
