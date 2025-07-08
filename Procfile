@@ -1,0 +1,1 @@
+web: gunicorn ApiBlog.wsgi --log file -
