@@ -8,6 +8,9 @@ from blog.models import Author, AuthorProfile, Category, Post, Tag
 from blog.serializers import AuthorSerializer, CategorySerializer, PostSerializer, TagSerializer
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
+from blog.service.post_service import get_latest_active_posts  
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 class Pagination(PageNumberPagination):
     page_size = 10
@@ -73,3 +76,13 @@ class PostViewSet(viewsets.ModelViewSet):
     @method_decorator(cache_page(60*5))  # cac
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
+
+
+@extend_schema(summary="Servicio: Últimos posts publicados", tags=["Servicios"])
+class LatestPostsView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        posts = get_latest_active_posts()
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
