@@ -9,7 +9,8 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv()
-
+import pymysql
+pymysql.install_as_MySQLdb()
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -78,6 +79,7 @@ WSGI_APPLICATION = 'ApiBlog.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+
 
 DATABASES = {
     'default': {
