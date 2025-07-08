@@ -5,6 +5,7 @@ from datetime import timedelta
 import os
 from drf_spectacular.settings import SpectacularSettings
 from dotenv import load_dotenv
+import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -81,14 +82,9 @@ WSGI_APPLICATION = 'ApiBlog.wsgi.application'
 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv("MYSQL_DATABASE"),
-        'USER': os.getenv("MYSQLUSER"),
-        'PASSWORD': os.getenv("MYSQLPASSWORD"),
-        'HOST': os.getenv("MYSQLHOST"),
-        'PORT': os.getenv("MYSQLPORT"),
-    }
+    'default': dj_database_url.config(
+       default=os.getenv('MYSQL_URL') 
+    )
 }
 
 
