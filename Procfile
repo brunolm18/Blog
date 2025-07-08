@@ -1,1 +1,1 @@
-web: gunicorn ApiBlog.wsgi --log file -
+web: gunicorn ApiBlog.wsgi:application --bind 0.0.0.0:$PORT
