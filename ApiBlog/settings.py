@@ -23,6 +23,9 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://blog-production-e139.up.railway.app"
+]
 # Application definition
 
 INSTALLED_APPS = [
