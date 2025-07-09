@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'ApiBlog.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-
+#Configuracion de base de datos
 DATABASE_URL = os.getenv("MYSQL_URL")
 if not DATABASE_URL:
     raise Exception("MYSQL_URL no está definida en las variables de entorno")
